@@ -260,7 +260,7 @@ def dual_diffusion_generate(
         
         # Slice logits to match size of drafter logits if both are present
         if verifier_logits is not None and drafter_logits is not None:
-            verifier_logits = verifier_logits[:, :drafter_logits.size(1), :]
+            verifier_logits = verifier_logits[:, :drafter_logits[0].size(1), :]
 
         decoded_full = verifier_tokenizer.decode(verifier_output[0], skip_special_tokens=False)
         print(f"Full decoded for verfier step {stats['total_verifier_steps']} (with special tokens):")
@@ -318,7 +318,10 @@ def dual_diffusion_generate(
         
         # 2g. Remask for next iteration
         current_state = verified_output.clone()
-        for idx in indices_to_remask:
+        seq_len = current_state.size(1)
+        safe_indices = [i for i in indices_to_remask if i < seq_len]
+
+        for idx in safe_indices:
             current_state[0, idx] = drafter_mask_id
             
         # Note: current_state might be shorter than initial_input if truncated.
