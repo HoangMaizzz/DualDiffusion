@@ -24,9 +24,11 @@ def load_gsm8k():
     # Placeholder data
     testDataset = load_dataset("gsm8k", "main")["test"]
     gsm8k = []
-    for i in range(4):
-        ex = testDataset[i]
-        gsm8k.append({"question": ex["question"], "answer": ex["answer"].split("####")[-1].strip()})
+    for ex in testDataset:
+        gsm8k.append({
+            "question": ex["question"],
+            "answer": ex["answer"].split("####")[-1].strip()
+        })
 
     return gsm8k
 
@@ -44,12 +46,13 @@ def run_gsm8k(generate_func):
     
     for item in dataset:
         question = item["question"]
-        prompt = f"{question}\nRespond with no steps or explanation, just give the final answer in the format 'Answer: <number>'."
-        # print("Asking question ", prompt)
+        prompt = (
+            f"{question}\n"
+            "Please show your full reasoning step-by-step, then conclude with the final result "
+            "in the format 'Answer: <number>'."
+        )
         generated_text, num_tokens = generate_func(prompt)
         total_tokens += num_tokens
-        # print("We had ", num_tokens, " tokens")
-        # print("Answer was ", generated_text, " wanted ", item["answer"])
         pred_answer = extract_answer(generated_text)
         if pred_answer == item["answer"]:
             correct += 1
