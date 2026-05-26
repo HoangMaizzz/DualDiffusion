@@ -293,8 +293,9 @@ def dual_diffusion_generate(
         drafter_output_ver = drafter_output[:, :min_len]
         verifier_output_ver = verifier_output_drafter_vocab[:, :min_len]
 
-        print("Drafter Logits: ", drafter_logits[0].shape)
-        print("Verifier Logits: ", verifier_logits.shape)
+        # [SỬA LỖI TẠI ĐÂY] Vô hiệu hóa hai dòng print shape gây lỗi TypeError: 'NoneType' object is not subscriptable.
+        # print("Drafter Logits: ", drafter_logits[0].shape)
+        # print("Verifier Logits: ", verifier_logits.shape)
         
         verified_output, indices_to_remask = verification_fn(
             drafter_output_ver,
@@ -488,5 +489,3 @@ def truncate_dynamic_cache(dynamic_cache, new_len):
         if dynamic_cache.layers[i].values is not None:
             dynamic_cache.layers[i].values = dynamic_cache.layers[i].values[:, :, :new_len, :].contiguous()
     return dynamic_cache
-
-        
